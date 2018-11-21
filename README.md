@@ -78,7 +78,7 @@ ex:
 $ php artisan module:make your_module_name
 ```
 
-The default option is to create modules in the 'modules/' directory. This will be customizable in future version.
+The default option creates modules in the 'modules/' directory. This will be customizable in future version.
 
 your_module_name should be as simple as possible (DO NOT USE "-_." or any special character. CamelCase works).
 
