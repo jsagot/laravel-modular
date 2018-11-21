@@ -16,7 +16,22 @@ $ composer require jsagot/laravel-modular
 
 ## Basic Usage
 
-### First publish configuration file:
+### First add ModularServiceProvider
+
+In config/app.php
+
+```php
+...
+
+/*
+ * Package Service Providers...
+ */
+ Navel\Laravel\Modular\Providers\ModularServiceProvider::class,
+ 
+ ...
+```
+
+### Publish configuration file:
 
 ```bash
 $ php artisan vendor:publish --provider="Navel\Laravel\Modular\Providers\ModularServiceProvider" --tag="modular.config"
