@@ -72,7 +72,7 @@ ex:
   + ...
   + modules/
 
-### Then create a fresh new module with this command:
+### Then create a fresh new module :
 
 ```bash
 $ php artisan module:make your_module_name
