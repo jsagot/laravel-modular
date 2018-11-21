@@ -69,7 +69,7 @@ ex:
 + your_projects/
   + app/
   + bootstrap/
-  ...
+  + ...
   + modules/
 
 ### Then create a fresh new module with this command:
