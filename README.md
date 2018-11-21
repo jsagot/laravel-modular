@@ -16,9 +16,7 @@ $ composer require jsagot/laravel-modular
 
 ## Basic Usage
 
-### First add ModularServiceProvider
-
-In config/app.php
+### First add ModularServiceProvider to config/app.php
 
 ```php
 ...
