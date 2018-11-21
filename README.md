@@ -52,11 +52,25 @@ $ php artisan vendor:publish --provider="Navel\Laravel\Modular\Providers\Modular
 
 ```
 
+### Create 'modules/' directory
+
+Modules directory should be at the root of your Laravel project.
+
+ex:
+
++ your_projects/
+  + app/
+  + bootstrap/
+  ...
+  + modules/
+
 ### Then create a fresh new module with this command:
 
 ```bash
 $ php artisan module:make your_module_name
 ```
+
+The default option is to create modules in the 'modules/' directory. This will be customizable in future version.
 
 your_module_name should be as simple as possible (DO NOT USE "-_." or any special character. CamelCase works).
 
