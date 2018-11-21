@@ -102,6 +102,6 @@ your_module_name should be as simple as possible (DO NOT USE "-_." or any specia
 $ php artisan modular:demo
 ```
 
-You can then access to http://your-project.com/demo?demo=demo to see the demo module in action. (See code and comments)
+You can then access to http://localhost/demo?demo=demo to see the demo module in action. (See code and comments)
 
 ## Enjoy ;-)
