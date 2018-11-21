@@ -79,7 +79,7 @@ Modules directory should be at the root of your Laravel project.
 
 ex:
 
-+ your_projects/
++ your_project/
   + app/
   + bootstrap/
   + ...
