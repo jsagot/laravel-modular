@@ -1,6 +1,14 @@
 # laravel-modular
 Make your Laravel 5.7 application modular.
 
+## About
+
+Modular creates and manages modules for Laravel 5.7 only (for now). The created modules behave like any package designed for Laravel. With few benefits:
+
+ + no need to "dump" composer autoloader anymore
+ + Auto registration of middlewares, langs, views and routes (web only)
+ + Ready to publish configuration file
+ 
 ## Installation
 Create a new Laravel 5.7 project.
 
@@ -14,14 +22,6 @@ Install the latest version with
 $ composer require jsagot/laravel-modular
 ```
 
-## About
-
-Modular creates and manages modules for Laravel 5.7 only (for now). The created modules behave like any package designed for Laravel. With few benefits:
-
- + no need to "dump" composer autoloader anymore
- + Auto registration of middlewares, langs, views and routes (web only)
- + Ready to publish configuration file
- 
 ## Basic Usage
 
 ### First add ModularServiceProvider to config/app.php
