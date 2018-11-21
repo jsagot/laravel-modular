@@ -1,4 +1,4 @@
-# laravel-modular
+# Laravel-Modular
 Make your Laravel 5.7 application modular.
 
 ## About
@@ -42,6 +42,19 @@ $ composer require jsagot/laravel-modular
 ```bash
 $ php artisan vendor:publish --provider="Navel\Laravel\Modular\Providers\ModularServiceProvider" --tag="modular.config"
 ```
+
+### Activate Laravel-Modular
+
+in config/modular.php
+
+```php
+return [
+    'active' => true,
+    'path' => 'modules',
+    'namespace' => 'Modules\\',
+];
+```
+
 
 ### Add autoloader to the top of bootstrap/app.php file.
 
