@@ -1,0 +1,21 @@
+{
+    "name": "jsagot/laravel-modular",
+    "description": "Make your Laravel 5.7 application modular",
+    "homepage": "http://github.com/jsagot/laravel-modular",
+    "type": "library",
+    "require": {
+        "php": "^7.1.3"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Julien SAGOT",
+            "email": "sjmozdev@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+    ,
+    "autoload": {
+        "psr-4": {"Navel\\": "Navel"}
+    }
+}
