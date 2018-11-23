@@ -16,7 +16,7 @@ use Navel\Laravel\Modular\Console\Commands\ModularDemoCommand;
 class ModularServiceProvider extends ServiceProvider
 {
     /**
-     * Modules folders list
+     * Router
      *
      * @var Router
      */
