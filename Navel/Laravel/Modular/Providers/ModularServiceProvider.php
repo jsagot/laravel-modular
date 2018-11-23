@@ -16,7 +16,7 @@ use Navel\Laravel\Modular\Console\Commands\ModularDemoCommand;
 class ModularServiceProvider extends ServiceProvider
 {
     /**
-     * Router
+     * Modules folders list
      *
      * @var Router
      */
@@ -191,40 +191,44 @@ class ModularServiceProvider extends ServiceProvider
         if(!file_exists($path)) {
             mkdir($path);
         }
-        // extract modules folders
-        $modules = (function() use ($path) {
-            foreach (scandir($path) as $module) {
-                if($module != '.' && $module != '..') {
-                    yield $module;
+
+        $modules = (function($path) {
+            if($handle = opendir($path)) {
+                while( false !== ($entry = readdir($handle)) ) {
+                    if($entry != '.' && $entry != '..') {
+                        if(is_dir($path.'/'.$entry)) {
+                            yield $entry;
+                        }
+                    }
                 }
             }
-        })();
+        })($path);
 
         foreach ($modules as $module) {
-            $this->registerProviders((function() use ($module, $path) {
-                $path = $path.'/'.$module.'/'.'Providers';
-                if(!file_exists($path)) {
-                    return [];
-                }
-                if(!is_dir($path)) {
-                    return [];
-                }
-                $providers = (function() use ($module, $path) {
-                    foreach (scandir($path) as $provider) {
+            $dir = $path.'/'.$module.'/'.'Providers';
+            if(!file_exists($dir)) {
+                continue;
+            }
+            if(!is_dir($dir)) {
+                continue;
+            }
+            $providers = (function($module, $path) {
+                if($handle = opendir($path)) {
+                    while( false !== ($provider = readdir($handle)) ) {
                         if($provider != '.' && $provider != '..') {
                             $provider = config('modular.namespace').$module.'\\Providers\\'.str_replace('.php', '', $provider);
                             yield $provider;
                         }
                     }
-                })();
+                }
+            })($module, $dir);
 
-                return $providers;
-            })());
-
+            $this->registerProviders($providers);
             $this->registerAlias($module);
             $this->configureModule($module);
             $this->loadKernel($module);
         }
+        
     }
 
     /**
@@ -235,18 +239,15 @@ class ModularServiceProvider extends ServiceProvider
     protected function registerMiddleware()
     {
         $path = base_path(config('modular.path'));
-        // extract kernels
-        $kernels = (function() use ($path) {
-            foreach (scandir($path) as $module) {
+        if($handle = opendir($path)) {
+            while( false !== ($module = readdir($handle)) ) {
                 if($module != '.' && $module != '..') {
                     $kernel = config('modular.namespace').$module.'\\Kernel';
-                    yield new $kernel;
+                    $kernel = new $kernel;
+                    foreach ($kernel->middleware as $middleware) {
+                        $this->app->make(Kernel::class)->pushMiddleware($middleware);
+                    }
                 }
-            }
-        })();
-        foreach ($kernels as $kernel) {
-            foreach ($kernel->middleware as $middleware) {
-                $this->app->make(Kernel::class)->pushMiddleware($middleware);
             }
         }
         // push global middleware
