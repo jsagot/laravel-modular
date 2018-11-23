@@ -1,11 +1,11 @@
-{
+w{
     "name": "jsagot/laravel-modular",
     "description": "Make your Laravel 5.7 application modular",
     "homepage": "http://github.com/jsagot/laravel-modular",
     "type": "library",
     "require": {
         "php": "^7.1.3",
-        "laravel/laravel": "^5.7.*"
+        "laravel/framework": "5.7.*",
     },
     "license": "MIT",
     "authors": [
