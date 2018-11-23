@@ -194,10 +194,10 @@ class ModularServiceProvider extends ServiceProvider
 
         $modules = (function($path) {
             if($handle = opendir($path)) {
-                while( false !== ($entry = readdir($handle)) ) {
-                    if($entry != '.' && $entry != '..') {
-                        if(is_dir($path.'/'.$entry)) {
-                            yield $entry;
+                while( false !== ($module = readdir($handle)) ) {
+                    if($module != '.' && $module != '..') {
+                        if(is_dir($path.'/'.$module)) {
+                            yield $module;
                         }
                     }
                 }
