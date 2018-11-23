@@ -10,6 +10,9 @@ class IndexController extends Controller
 {
     public function show()
     {
-        return view('demo::index', ['dummy' => Dummy::getDummy()]);
+        return view('demo::index', [
+            'dummy' => Dummy::getDummy(),
+            'test' => config('demo.config.test', 'Oops'),
+        ]);
     }
 }

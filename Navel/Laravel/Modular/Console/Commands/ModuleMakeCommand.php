@@ -22,12 +22,10 @@ class ModuleMakeCommand extends Command
 
     protected $files = [
         'Kernel.php',
+        'config/config.php',
         'Controllers/IndexController.php',
-        'Facades/Dummy.php',
         'Providers/ServiceProvider.php',
         'Providers/RouteServiceProvider.php',
-        'Repository/DummyRepository.php',
-        'Repository/Contracts/DummyRepositoryInterface.php',
     ];
 
     /**
@@ -67,14 +65,14 @@ class ModuleMakeCommand extends Command
             return;
         }
 
-        rename($newfile.'/config/module.php', $newfile.'/config/'.$moduleName.'.php');
-
         foreach ($this->files as $file) {
             $content = file_get_contents($newfile.'/'.$file);
             $content = str_replace('{module}', $module, $content);
             $content = str_replace('{moduleName}', $moduleName, $content);
             file_put_contents($newfile.'/'.$file, $content);
         }
+
+        rename($newfile.'/config/module.php', $newfile.'/config/'.$moduleName.'.php');
 
         echo "Module ".$module." created successfully.\n\r";
     }

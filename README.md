@@ -5,7 +5,7 @@ Make your Laravel 5.7 application modular.
 
 Modular creates and manages modules for Laravel 5.7 only (for now). The created modules behave like any package designed for Laravel. With few benefits:
 
- + no need to "dump" composer autoloader anymore
+ + Autoloaded modules
  + Auto registration of middlewares, langs, views and routes (web only)
  + Ready to publish configuration file
  
@@ -55,23 +55,6 @@ return [
 ];
 ```
 
-
-### Add autoloader to the top of bootstrap/app.php file.
-
-```php
-<?php
-
-/* Modules Autoloader */
- Navel\Laravel\Autoloader::register();
- Navel\Laravel\Autoloader::addNamespace('Modules', __DIR__.'/../modules');
- 
- $app = new Illuminate\Foundation\Application(
-    dirname(__DIR__)
-);
-
-...
-
-```
 
 ### Create 'modules/' directory
 

@@ -16,6 +16,27 @@ use Navel\Laravel\Modular\Console\Commands\ModularDemoCommand;
 class ModularServiceProvider extends ServiceProvider
 {
     /**
+     * Is Modules folder scanned ?
+     *
+     * @var bool
+     */
+    protected $scanned = false;
+
+    /**
+     * Modules folders list
+     *
+     * @var array
+     */
+    protected $modules = [];
+
+    /**
+     * Modules folders list
+     *
+     * @var array
+     */
+    protected $kernels = [];
+
+    /**
      * Modules folders list
      *
      * @var Router
@@ -33,7 +54,7 @@ class ModularServiceProvider extends ServiceProvider
             __DIR__.'/../config/modular.php' => config_path('modular.php'),
         ], 'modular');
 
-        if(!$this->active()) { return; }
+        if(!$this->check()) { return; }
 
         /* Artisan commands */
         if ($this->app->runningInConsole()) {
@@ -45,6 +66,9 @@ class ModularServiceProvider extends ServiceProvider
         // */
 
         $this->registerMiddleware();
+
+        $mem = $this->convert($this->memoryUsage(false));
+        die('Old boot: '.$mem);
     }
 
     /**
@@ -54,9 +78,14 @@ class ModularServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if(!$this->active()) { return; }
+        if(!$this->check()) { return; }
+
         $this->router = $this->app['router'];
+
         $this->registerModules();
+        $this->registerKernels();
+        $mem = $this->convert($this->memoryUsage(false));
+        echo('Old register: '.$mem.'<br>');
     }
 
     /**
@@ -94,6 +123,15 @@ class ModularServiceProvider extends ServiceProvider
         }
     }
 
+    /** */
+    protected function registerKernels()
+    {
+        foreach ($this->kernels as $kernel) {
+            $this->registerGroupsMiddleware($kernel);
+            $this->registerRoutesMiddleware($kernel);
+        }
+    }
+
     /**
      *
      *
@@ -104,28 +142,25 @@ class ModularServiceProvider extends ServiceProvider
     {
         $path = base_path(config('modular.path'));
 
-        if(!file_exists(app()->basePath().'/config/'.strtolower($module))) {
-            $folder = $path.'/'.$module.'/config/';
-            foreach (scandir($folder) as $file) {
-                if($file != '.' && $file != '..') {
-                    $this->mergeConfigFrom($folder.$file, strtolower($module).'.'.str_replace('.php', '', $file));
-                }
-            }
+        if(file_exists($path.'/'.$module.'/config/'.strtolower($module).'.php')) {
+            $this->publishes([
+                $path.'/'.$module.'/config/'.strtolower($module).'.php' => config_path(strtolower($module).'.php'),
+            ], 'module.'.strtolower($module).'.config');
         }
 
         if(file_exists($path.'/'.$module.'/database/migrations'))  {
             $this->loadMigrationsFrom($path.'/'.$module.'/database/migrations');
         }
 
-        // if unpublished ?!!
+
         if(file_exists($path.'/'.$module.'/resources/lang')) {
             $this->loadTranslationsFrom($path.'/'.$module.'/resources/lang', strtolower($module));
         }
 
-        // if unpublished ?!!
         if(file_exists($path.'/'.$module.'/resources/views'))  {
             $this->loadViewsFrom($path.'/'.$module.'/resources/views', strtolower($module));
         }
+
     }
 
     /**
@@ -136,25 +171,15 @@ class ModularServiceProvider extends ServiceProvider
      */
     protected function registerAlias($module)
     {
-        // what if user publish config and use that one ???
-        $status = config('test0.aliases', 'unpublished');
-        if(is_string($status)) {
-            $path = base_path(config('modular.path')).'/'.$module.'/config/'.strtolower($module).'.php';
-            if(file_exists($path)) {
-                $config = require_once $path;
-                if(isset($config['aliases'])) {
-                    foreach ($config['aliases'] as $abstract => $concrete) {
-                        $this->app->alias($abstract, $concrete);
-                    }
+        $path = base_path(config('modular.path')).'/'.$module.'/config/'.strtolower($module).'.php';
+        if(file_exists($path)) {
+            $config = require_once $path;
+            if(isset($config['aliases'])) {
+                foreach ($config['aliases'] as $abstract => $concrete) {
+                    $this->app->alias($abstract, $concrete);
                 }
             }
-        } else {
-            if(!is_array($status)) { return; }
-            foreach ($status as $abstract => $concrete) {
-                $this->app->alias($abstract, $concrete);
-            }
         }
-
     }
 
     /**
@@ -163,11 +188,34 @@ class ModularServiceProvider extends ServiceProvider
      * @param array $providers
      * @return void
      */
-    protected function registerProviders($providers)
+    protected function registerProviders(array $providers)
     {
         foreach ($providers as $provider) {
             $this->app->register($provider, true);
         }
+    }
+
+    /**
+     * @param string $module
+     * @return array
+     */
+    protected function extractProviders($module)
+    {
+        $path = base_path(config('modular.path')).DIRECTORY_SEPARATOR.$module.DIRECTORY_SEPARATOR.'Providers';
+        if(!file_exists($path)) {
+            return []; // throw exception !!!
+        }
+        if(!is_dir($path)) {
+            return []; // throw exception !!!
+        }
+        $providers = scandir($path);
+        $providers = array_slice($providers, 2);
+
+        array_walk($providers, function(&$value) use ($module) {
+            $value = config('modular.namespace').$module.'\\Providers\\'.str_replace('.php', '', $value);
+        });
+
+        return $providers;
     }
 
     /**
@@ -179,51 +227,32 @@ class ModularServiceProvider extends ServiceProvider
     protected function loadKernel($module)
     {
         $kernel = config('modular.namespace').$module.'\\Kernel';
-        $kernel = new $kernel;
-        $this->registerGroupsMiddleware($kernel);
-        $this->registerRoutesMiddleware($kernel);
+        $this->kernels[] = new $kernel;
+    }
+
+    private function convert($size)
+    {
+    	$unit=array('b','kb','mb','gb','tb','pb');
+        	return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
+    }
+
+    private function memoryUsage($convert = true, $phpOnly = true)
+    {
+    	if($convert) {
+    		return $this->convert(memory_get_usage(!$phpOnly));
+    	} else {
+    		return memory_get_usage(!$phpOnly);
+    	}
     }
 
     /** */
     protected function registerModules()
     {
-        $path = base_path(config('modular.path'));
-        if(!file_exists($path)) {
-            mkdir($path);
-        }
-        // extract modules folders
-        $modules = (function() use ($path) {
-            foreach (scandir($path) as $module) {
-                if($module != '.' && $module != '..') {
-                    yield $module;
-                }
-            }
-        })();
-
-        foreach ($modules as $module) {
-            $this->registerProviders((function() use ($module, $path) {
-                $path = $path.'/'.$module.'/'.'Providers';
-                if(!file_exists($path)) {
-                    return [];
-                }
-                if(!is_dir($path)) {
-                    return [];
-                }
-                $providers = (function() use ($module, $path) {
-                    foreach (scandir($path) as $provider) {
-                        if($provider != '.' && $provider != '..') {
-                            $provider = config('modular.namespace').$module.'\\Providers\\'.str_replace('.php', '', $provider);
-                            yield $provider;
-                        }
-                    }
-                })();
-
-                return $providers;
-            })());
-
+        foreach ($this->modules as $module) {
+            $this->loadKernel($module);
+            $this->registerProviders($this->extractProviders($module));
             $this->registerAlias($module);
             $this->configureModule($module);
-            $this->loadKernel($module);
         }
     }
 
@@ -234,17 +263,7 @@ class ModularServiceProvider extends ServiceProvider
      */
     protected function registerMiddleware()
     {
-        $path = base_path(config('modular.path'));
-        // extract kernels
-        $kernels = (function() use ($path) {
-            foreach (scandir($path) as $module) {
-                if($module != '.' && $module != '..') {
-                    $kernel = config('modular.namespace').$module.'\\Kernel';
-                    yield new $kernel;
-                }
-            }
-        })();
-        foreach ($kernels as $kernel) {
+        foreach ($this->kernels as $kernel) {
             foreach ($kernel->middleware as $middleware) {
                 $this->app->make(Kernel::class)->pushMiddleware($middleware);
             }
@@ -260,10 +279,40 @@ class ModularServiceProvider extends ServiceProvider
         //     ->prependMiddleware(\App\Http\Middleware\DemoMiddleware::class);
     }
 
+    /**
+     * Scan modules folder.
+     *
+     * @return void
+     */
+    protected function scan()
+    {
+        $modules = scandir(base_path(config('modular.path')));
+        $this->modules = array_slice($modules, 2);
+        $this->scanned = true;
+    }
+
     /** @return bool */
-    protected function active()
+    protected function activated()
     {
         return config('modular.active', false);
+    }
+
+    /** @return bool */
+    protected function check()
+    {
+        if(!$this->activated()) {
+            return false;
+        }
+
+        $path = base_path(config('modular.path'));
+        if(!file_exists($path)) {
+            mkdir($path);
+        }
+
+        if(!$this->scanned) {
+            $this->scan();
+        }
+        return true;
     }
 
     public function __construct($app)
@@ -275,5 +324,4 @@ class ModularServiceProvider extends ServiceProvider
         );
         parent::__construct($app);
     }
-
 }

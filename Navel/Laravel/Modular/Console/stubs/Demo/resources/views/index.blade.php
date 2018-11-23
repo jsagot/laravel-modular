@@ -83,6 +83,7 @@
                 <div class="title m-b-md">
                     {{ $dummy }}
                 </div>
+                <p>{{ $test }}</p>
             </div>
         </div>
     </body>

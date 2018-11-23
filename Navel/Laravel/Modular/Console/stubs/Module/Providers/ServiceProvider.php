@@ -67,11 +67,6 @@ class ServiceProvider extends BaseServiceProvider
      */
     public function register()
     {
-        // ex: binding facade on alias
-        App::bind('dummy', function() {
-            return new DummyRepository;
-        });
-
         //
     }
 }
