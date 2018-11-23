@@ -7,7 +7,7 @@ Modular creates and manages modules for Laravel 5.7 only (for now). The created 
 
  + Autoloaded modules
  + Auto registration of middlewares, langs, views and routes (web only)
- + Ready to publish configuration file
+ + Auto-merged configuration file
  
 ## Installation
 Create a new Laravel 5.7 project.
