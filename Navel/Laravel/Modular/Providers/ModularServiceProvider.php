@@ -201,6 +201,7 @@ class ModularServiceProvider extends ServiceProvider
                         }
                     }
                 }
+                closedir($handle);
             }
         })($path);
 
@@ -220,6 +221,7 @@ class ModularServiceProvider extends ServiceProvider
                             yield $provider;
                         }
                     }
+                    closedir($handle);
                 }
             })($module, $dir);
 
@@ -249,6 +251,7 @@ class ModularServiceProvider extends ServiceProvider
                     }
                 }
             }
+            closedir($handle);
         }
         // push global middleware
         //$this->app
