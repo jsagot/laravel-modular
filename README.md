@@ -1,16 +1,16 @@
 # Laravel-Modular
-Make your Laravel 5.7 application modular.
+Make your Laravel 6.2 application modular.
 
 ## About
 
-Modular creates and manages modules for Laravel 5.7 only (for now). The created modules behave like any package designed for Laravel. With few benefits:
+Modular creates and manages modules for Laravel 6.2. The created modules behave like any package designed for Laravel. With few benefits:
 
  + Autoloaded modules
  + Auto registration of middlewares, langs, views and routes (web only)
  + Auto-merged configuration file
  
 ## Installation
-Create a new Laravel 5.7 project.
+Create a new Laravel 6.2 project.
 
 ```bash
 $ composer create-project --prefer-dist laravel/laravel your_project
